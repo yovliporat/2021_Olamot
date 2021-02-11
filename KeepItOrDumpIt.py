@@ -77,15 +77,22 @@ class MyFrame(wx.Frame):
         g.SetTextForeground('white')
         g.SetFont(wx.Font(44, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
         empty_bmp = wx.Bitmap()
-        title = 'נושא: ' + topic + ' | שאלה: ' + q[self.innerq]
-        g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1000, 150), alignment=wx.ALIGN_CENTER_VERTICAL|wx.TEXT_ALIGNMENT_RIGHT, indexAccel=-1)
+        title = 'נושא: ' + topic + '\nשאלה: ' + q[self.innerq]
+        w, h = g.GetMultiLineTextExtent(title)
+        cur_font = 44
+        while w > 1000 and h > 214:
+            cur_font -= 1
+            g.SetFont(wx.Font(cur_font, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
+            w, h = g.GetMultiLineTextExtent(title)
+        g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1000, 214),
+                    alignment=wx.ALIGN_CENTER_VERTICAL|wx.TEXT_ALIGNMENT_RIGHT, indexAccel=-1)
         brush = wx.Brush(wx.Colour(249, 242, 225, wx.ALPHA_OPAQUE)) # Beige-ish background color
         g.SetBrush(brush)
         g.SetPen(wx.BLACK_PEN)
         for i in range(5):
             for j in range(3):
                 hint, fandom = items[5 * j + i]
-                g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 5)
+                g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 15)
 
                 newhint = adjust_font(g, hint, 200, 100, 5, 40)
                 g.SetTextForeground('black')
@@ -100,7 +107,14 @@ class MyFrame(wx.Frame):
         # Draw 'keep'/'dump' buttons
         g.SetBrush(brush)
         g.SetPen(wx.TRANSPARENT_PEN)
-        g.DrawRoundedRectangle(1050, 50, 253, 150, 5)
+        keep_rect = wx.Rect(1536 - 50 - 150, 100, 150, 50)
+        dump_rect = wx.Rect(1536 - 50 - 150, 164, 150, 50)
+        g.DrawRectangle(keep_rect)
+        g.DrawRectangle(dump_rect)
+        g.SetTextForeground('black')
+        g.SetFont(wx.Font(30, wx.DEFAULT, wx.NORMAL, wx.FONTWEIGHT_SEMIBOLD, False, 'Narkisim'))
+        g.DrawLabel('שמור', empty_bmp, keep_rect, alignment=wx.ALIGN_CENTER, indexAccel=-1)
+        g.DrawLabel('שמוט', empty_bmp, dump_rect, alignment=wx.ALIGN_CENTER, indexAccel=-1)
 
     def key_handler(self, e):
         k = e.GetKeyCode()
@@ -109,6 +123,11 @@ class MyFrame(wx.Frame):
 
     def lclick_handler(self, e):
         mx, my = e.GetPosition()
+        mx = self.GetSize().GetWidth() - mx
+        if within_aabb(mx, my, 1536 - 50 - 150, 100, 150, 50):  # Keep
+            print('hi')
+        if within_aabb(mx, my, 1536 - 50 - 150, 164, 150, 50):  # Dump
+            pass
 
     def read_questions(self):
         lines = []
