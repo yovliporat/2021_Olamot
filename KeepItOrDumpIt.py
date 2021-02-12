@@ -146,8 +146,6 @@ class MyFrame(wx.Frame):
             self.innerq = 1
 
     def read_questions(self):
-        lines = []
-
         with open('questions.txt', encoding='utf8') as f:
             lines = f.readlines()
 
