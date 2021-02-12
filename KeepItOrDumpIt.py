@@ -57,6 +57,8 @@ class MyFrame(wx.Frame):
         self.curq = 0
         self.innerq = 0
 
+        self.covered = [True for _ in range(15)]
+
         self.lasso()
 
     def lasso(self):
@@ -86,11 +88,15 @@ class MyFrame(wx.Frame):
             w, h = g.GetMultiLineTextExtent(title)
         g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1000, 214),
                     alignment=wx.ALIGN_CENTER_VERTICAL|wx.TEXT_ALIGNMENT_RIGHT, indexAccel=-1)
-        brush = wx.Brush(wx.Colour(249, 242, 225, wx.ALPHA_OPAQUE)) # Beige-ish background color
-        g.SetBrush(brush)
         g.SetPen(wx.BLACK_PEN)
         for i in range(5):
             for j in range(3):
+                if self.covered[5 * j + i]:
+                    brush = wx.Brush(wx.Colour(249, 242, 225, wx.ALPHA_OPAQUE))
+                    g.SetBrush(brush)
+                else:
+                    brush = wx.Brush(wx.Colour(64, 64, 64, wx.ALPHA_OPAQUE))
+                    g.SetBrush(brush)
                 hint, fandom = items[5 * j + i]
                 g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 15)
 
@@ -125,9 +131,19 @@ class MyFrame(wx.Frame):
         mx, my = e.GetPosition()
         mx = self.GetSize().GetWidth() - mx
         if within_aabb(mx, my, 1536 - 50 - 150, 100, 150, 50):  # Keep
-            print('hi')
+            self.next_question()
+            self.Refresh()
         if within_aabb(mx, my, 1536 - 50 - 150, 164, 150, 50):  # Dump
-            pass
+            self.next_question()
+            self.Refresh()
+
+    def next_question(self):
+        if self.innerq:
+            if self.curq < len(self.questions) - 1:
+                self.innerq = 0
+                self.curq += 1
+        else:
+            self.innerq = 1
 
     def read_questions(self):
         lines = []
