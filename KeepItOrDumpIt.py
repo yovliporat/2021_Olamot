@@ -1,7 +1,7 @@
 import wx
 import sys
 from collections import namedtuple
-from random import  shuffle
+from random import shuffle
 
 
 Question = namedtuple('Question', ['topic', 'items', 'q1', 'q2'])
