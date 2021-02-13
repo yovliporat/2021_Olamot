@@ -2,6 +2,7 @@ import wx
 import sys
 from collections import namedtuple
 from random import shuffle
+import json
 
 
 Question = namedtuple('Question', ['topic', 'items', 'q1', 'q2'])
@@ -20,6 +21,10 @@ def within_aabb(x, y, xx, yy, w, h):
 
 def remove_newlines(s):
     return ''.join(s.split('\n'))
+
+
+def lin_int(a, b, t):
+    return a * t + b * (1-t)
 
 
 def adjust_font(g, txt, w, h, margin, maximal_font):
@@ -57,7 +62,7 @@ class MyFrame(wx.Frame):
         self.curq = 0
         self.innerq = 0
 
-        self.covered = [True for _ in range(15)]
+        self.covered = [0 for _ in range(15)]
 
         self.lasso()
 
@@ -74,7 +79,9 @@ class MyFrame(wx.Frame):
 
         g.SetLayoutDirection(wx.Layout_RightToLeft)
 
-        topic, items, q1, q2 = self.questions[self.curq]
+        topic, items, q1, q2 = self.questions[self.curq]['topic'], self.questions[self.curq]['items'],\
+                               self.questions[self.curq]['questions'][0], self.questions[self.curq]['questions'][1]
+        fandoms = self.questions[self.curq]['fandoms']
         q = (q1, q2)
         g.SetTextForeground('white')
         g.SetFont(wx.Font(44, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
@@ -91,13 +98,11 @@ class MyFrame(wx.Frame):
         g.SetPen(wx.BLACK_PEN)
         for i in range(5):
             for j in range(3):
-                if self.covered[5 * j + i]:
-                    brush = wx.Brush(wx.Colour(249, 242, 225, wx.ALPHA_OPAQUE))
-                    g.SetBrush(brush)
-                else:
-                    brush = wx.Brush(wx.Colour(64, 64, 64, wx.ALPHA_OPAQUE))
-                    g.SetBrush(brush)
-                hint, fandom = items[5 * j + i]
+                cell = self.covered[5 * j + i]
+                brush = wx.Brush(wx.Colour(lin_int(64, 249, cell), lin_int(64, 242, cell),
+                                           lin_int(64, 255, cell), wx.ALPHA_OPAQUE))
+                g.SetBrush(brush)
+                hint, fandom = items[5 * j + i], fandoms[5 * j + i]
                 g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 15)
 
                 newhint = adjust_font(g, hint, 200, 100, 5, 40)
@@ -146,20 +151,10 @@ class MyFrame(wx.Frame):
             self.innerq = 1
 
     def read_questions(self):
-        with open('questions.txt', encoding='utf8') as f:
-            lines = f.readlines()
-
-        i = 0
-        while i < len(lines):
-            l = lines[i]
-            if l[0] == '#':
-                q = Question(remove_newlines(l[1:]),
-                             [tuple([remove_newlines(s) for s in lines[i + j].split('|')]) for j in range(1, 16)],
-                             remove_newlines(lines[i + 16]), remove_newlines(lines[i + 17]))
-                i += 18
-                self.questions.append(q)
-
+        with open('questions.json', encoding='utf8') as f:
+            self.questions = json.load(f)['questions']
         shuffle(self.questions)
+        print(self.questions)
 
 
 if __name__ == '__main__':
