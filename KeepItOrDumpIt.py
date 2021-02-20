@@ -3,9 +3,7 @@ import sys
 from collections import namedtuple
 from random import shuffle
 import json
-
-
-Question = namedtuple('Question', ['topic', 'items', 'q1', 'q2'])
+from time import sleep
 
 
 def scale_bitmap(bitmap, width, height):
@@ -24,7 +22,7 @@ def remove_newlines(s):
 
 
 def lin_int(a, b, t):
-    return a * t + b * (1-t)
+    return int(a * t + b * (1-t))
 
 
 def adjust_font(g, txt, w, h, margin, maximal_font):
@@ -116,30 +114,47 @@ class MyFrame(wx.Frame):
                             alignment=wx.ALIGN_CENTER, indexAccel=-1)
 
         # Draw 'keep'/'dump' buttons
+        brush = wx.Brush(wx.Colour(249, 242, 255, wx.ALPHA_OPAQUE))
         g.SetBrush(brush)
         g.SetPen(wx.TRANSPARENT_PEN)
         keep_rect = wx.Rect(1536 - 50 - 150, 100, 150, 50)
         dump_rect = wx.Rect(1536 - 50 - 150, 164, 150, 50)
+        reset_rect = wx.Rect(1536 - 50 - 150, 36, 150, 50)
         g.DrawRectangle(keep_rect)
         g.DrawRectangle(dump_rect)
+        g.DrawRectangle(reset_rect)
         g.SetTextForeground('black')
         g.SetFont(wx.Font(30, wx.DEFAULT, wx.NORMAL, wx.FONTWEIGHT_SEMIBOLD, False, 'Narkisim'))
         g.DrawLabel('שמור', empty_bmp, keep_rect, alignment=wx.ALIGN_CENTER, indexAccel=-1)
         g.DrawLabel('שמוט', empty_bmp, dump_rect, alignment=wx.ALIGN_CENTER, indexAccel=-1)
+        g.DrawLabel('איפוס', empty_bmp, reset_rect, alignment=wx.ALIGN_CENTER, indexAccel=-1)
 
     def key_handler(self, e):
         k = e.GetKeyCode()
         if k == wx.WXK_ESCAPE:
             sys.exit(0)
+        if k == wx.WXK_RETURN:
+            print('hi')
+            self.next_question()
+            self.Refresh()
 
     def lclick_handler(self, e):
         mx, my = e.GetPosition()
         mx = self.GetSize().GetWidth() - mx
         if within_aabb(mx, my, 1536 - 50 - 150, 100, 150, 50):  # Keep
-            self.next_question()
+            ans = self.questions[self.curq]['answers' + str(self.innerq + 1)]
+            for i in range(15):
+                if i not in ans:
+                    self.covered[i] = 1
             self.Refresh()
         if within_aabb(mx, my, 1536 - 50 - 150, 164, 150, 50):  # Dump
-            self.next_question()
+            ans = self.questions[self.curq]['answers' + str(self.innerq + 1)]
+            for i in range(15):
+                if i in ans:
+                    self.covered[i] = 1
+            self.Refresh()
+        if within_aabb(mx, my, 1536 - 50 - 150, 36, 150, 50):  # Reset
+            self.covered = [0 for _ in range(15)]
             self.Refresh()
 
     def next_question(self):
@@ -154,7 +169,6 @@ class MyFrame(wx.Frame):
         with open('questions.json', encoding='utf8') as f:
             self.questions = json.load(f)['questions']
         shuffle(self.questions)
-        print(self.questions)
 
 
 if __name__ == '__main__':
