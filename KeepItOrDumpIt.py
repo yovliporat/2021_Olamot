@@ -61,6 +61,7 @@ class MyFrame(wx.Frame):
         self.innerq = 0
 
         self.covered = [0 for _ in range(15)]
+        self.framed = [0 for _ in range(15)]
 
         self.lasso()
 
@@ -93,12 +94,12 @@ class MyFrame(wx.Frame):
             w, h = g.GetMultiLineTextExtent(title)
         g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1000, 214),
                     alignment=wx.ALIGN_CENTER_VERTICAL|wx.TEXT_ALIGNMENT_RIGHT, indexAccel=-1)
-        g.SetPen(wx.BLACK_PEN)
         for i in range(5):
             for j in range(3):
                 cell = self.covered[5 * j + i]
                 brush = wx.Brush(wx.Colour(lin_int(64, 249, cell), lin_int(64, 242, cell),
                                            lin_int(64, 255, cell), wx.ALPHA_OPAQUE))
+                g.SetPen(wx.RED_PEN if self.framed[5 * j + i] else wx.BLACK_PEN)
                 g.SetBrush(brush)
                 hint, fandom = items[5 * j + i], fandoms[5 * j + i]
                 g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 15)
@@ -134,7 +135,6 @@ class MyFrame(wx.Frame):
         if k == wx.WXK_ESCAPE:
             sys.exit(0)
         if k == wx.WXK_RETURN:
-            print('hi')
             self.next_question()
             self.Refresh()
 
@@ -143,14 +143,20 @@ class MyFrame(wx.Frame):
         mx = self.GetSize().GetWidth() - mx
         if within_aabb(mx, my, 1536 - 50 - 150, 100, 150, 50):  # Keep
             ans = self.questions[self.curq]['answers' + str(self.innerq + 1)]
+            self.framed = [0 for _ in range(15)]
             for i in range(15):
                 if i not in ans:
+                    if not self.covered[i]:
+                        self.framed[i] = True
                     self.covered[i] = 1
             self.Refresh()
         if within_aabb(mx, my, 1536 - 50 - 150, 164, 150, 50):  # Dump
             ans = self.questions[self.curq]['answers' + str(self.innerq + 1)]
+            self.framed = [0 for _ in range(15)]
             for i in range(15):
                 if i in ans:
+                    if not self.covered[i]:
+                        self.framed[i] = True
                     self.covered[i] = 1
             self.Refresh()
         if within_aabb(mx, my, 1536 - 50 - 150, 36, 150, 50):  # Reset
@@ -158,6 +164,7 @@ class MyFrame(wx.Frame):
             self.Refresh()
 
     def next_question(self):
+        self.framed = [0 for _ in range(15)]
         if self.innerq:
             if self.curq < len(self.questions) - 1:
                 self.innerq = 0
