@@ -63,6 +63,8 @@ class MyFrame(wx.Frame):
         self.covered = [0 for _ in range(15)]
         self.framed = [0 for _ in range(15)]
 
+        self.frame_pen = wx.Pen(wx.RED, 3)
+
         self.lasso()
 
     def lasso(self):
@@ -85,21 +87,24 @@ class MyFrame(wx.Frame):
         g.SetTextForeground('white')
         g.SetFont(wx.Font(44, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
         empty_bmp = wx.Bitmap()
-        title = 'נושא: ' + topic + '\nשאלה: ' + q[self.innerq]
+        qnum = f'שאלה {self.curq + 1}-{self.innerq + 1} :'
+        title = 'נושא: ' + topic + '\n' + qnum + q[self.innerq]
+        while '  ' in title:
+            title = title.replace('  ', ' ')
         w, h = g.GetMultiLineTextExtent(title)
         cur_font = 44
-        while w > 1000 and h > 214:
+        while w > 1200 or h > 214:
             cur_font -= 1
             g.SetFont(wx.Font(cur_font, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
-            w, h = g.GetMultiLineTextExtent(title)
-        g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1000, 214),
+            w, h = g.GetMultiLineTextExtent(title);
+        g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1200, 214),
                     alignment=wx.ALIGN_CENTER_VERTICAL|wx.TEXT_ALIGNMENT_RIGHT, indexAccel=-1)
         for i in range(5):
             for j in range(3):
                 cell = self.covered[5 * j + i]
                 brush = wx.Brush(wx.Colour(lin_int(64, 249, cell), lin_int(64, 242, cell),
                                            lin_int(64, 255, cell), wx.ALPHA_OPAQUE))
-                g.SetPen(wx.RED_PEN if self.framed[5 * j + i] else wx.BLACK_PEN)
+                g.SetPen(self.frame_pen if self.framed[5 * j + i] else wx.BLACK_PEN)
                 g.SetBrush(brush)
                 hint, fandom = items[5 * j + i], fandoms[5 * j + i]
                 g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 15)
