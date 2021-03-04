@@ -180,8 +180,11 @@ class MyFrame(wx.Frame):
 
     def read_questions(self):
         with open('questions.json', encoding='utf8') as f:
-            self.questions = json.load(f)['questions']
-        shuffle(self.questions)
+            q = json.load(f)['questions']
+        first = q[0]
+        q = q[1:]
+        shuffle(q)
+        self.questions = [first] + q
 
 
 if __name__ == '__main__':
