@@ -147,7 +147,7 @@ class MyFrame(wx.Frame):
         mx, my = e.GetPosition()
         mx = self.GetSize().GetWidth() - mx
         if within_aabb(mx, my, 1536 - 50 - 150, 100, 150, 50):  # Keep
-            ans = self.questions[self.curq]['answers' + str(self.innerq + 1)]
+            ans = self.questions[self.curq]['answer' + str(self.innerq + 1)]
             self.framed = [0 for _ in range(15)]
             for i in range(15):
                 if i not in ans:
@@ -156,7 +156,7 @@ class MyFrame(wx.Frame):
                     self.covered[i] = 1
             self.Refresh()
         if within_aabb(mx, my, 1536 - 50 - 150, 164, 150, 50):  # Dump
-            ans = self.questions[self.curq]['answers' + str(self.innerq + 1)]
+            ans = self.questions[self.curq]['answer' + str(self.innerq + 1)]
             self.framed = [0 for _ in range(15)]
             for i in range(15):
                 if i in ans:
@@ -165,6 +165,7 @@ class MyFrame(wx.Frame):
                     self.covered[i] = 1
             self.Refresh()
         if within_aabb(mx, my, 1536 - 50 - 150, 36, 150, 50):  # Reset
+            self.framed = [0 for _ in range(15)]
             self.covered = [0 for _ in range(15)]
             self.Refresh()
 
