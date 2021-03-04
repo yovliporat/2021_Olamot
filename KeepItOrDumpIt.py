@@ -109,14 +109,14 @@ class MyFrame(wx.Frame):
                 hint, fandom = items[5 * j + i], fandoms[5 * j + i]
                 g.DrawRoundedRectangle(50 + 300 * i, 264 + 200 * j, 250, 150, 15)
 
-                newhint = adjust_font(g, hint, 200, 100, 5, 40)
+                newhint = adjust_font(g, hint, 200, 90, 5, 40)
                 g.SetTextForeground('black')
-                g.DrawLabel(newhint, empty_bmp, wx.Rect(50 + 300 * i, 264 + 200 * j, 250, 100),
+                g.DrawLabel(newhint, empty_bmp, wx.Rect(50 + 300 * i, 264 + 200 * j, 250, 90),
                             alignment=wx.ALIGN_CENTER, indexAccel=-1)
 
-                newfandom = adjust_font(g, fandom, 250, 50, 5, min(30, g.GetFont().GetPointSize()))
+                newfandom = adjust_font(g, fandom, 250, 60, 5, min(30, g.GetFont().GetPointSize()))
                 g.SetTextForeground('grey')
-                g.DrawLabel(newfandom, empty_bmp, wx.Rect(50 + 300 * i, 100 + 264 + 200 * j, 250, 50),
+                g.DrawLabel(newfandom, empty_bmp, wx.Rect(50 + 300 * i, 90 + 264 + 200 * j, 250, 60),
                             alignment=wx.ALIGN_CENTER, indexAccel=-1)
 
         # Draw 'keep'/'dump' buttons
