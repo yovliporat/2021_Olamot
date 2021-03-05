@@ -87,7 +87,7 @@ class MyFrame(wx.Frame):
         g.SetTextForeground('white')
         g.SetFont(wx.Font(44, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
         empty_bmp = wx.Bitmap()
-        qnum = f'שאלה {self.curq + 1}-{self.innerq + 1} :'
+        qnum = f'שאלה {self.curq + 1}-{self.innerq + 1}: '
         title = 'נושא: ' + topic + '\n' + qnum + q[self.innerq]
         while '  ' in title:
             title = title.replace('  ', ' ')
