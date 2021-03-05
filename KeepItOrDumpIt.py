@@ -106,11 +106,7 @@ class MyFrame(wx.Frame):
         print(comp)
         competitor = comp + '\n (' + pronoun + ')'
         w, h = g.GetMultiLineTextExtent(competitor)
-        cur_font = 44
-        while w > 236 or h > 214:
-            cur_font -= 1
-            g.SetFont(wx.Font(cur_font, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
-            w, h = g.GetMultiLineTextExtent(competitor)
+        competitor = adjust_font(g, competitor, 236, 214, 5, 44)
         g.DrawLabel(competitor, empty_bmp, wx.Rect(1075, 50, 236, 214),
                     alignment=wx.ALIGN_TOP|wx.ALIGN_CENTER_HORIZONTAL, indexAccel=-1)
         for i in range(5):
