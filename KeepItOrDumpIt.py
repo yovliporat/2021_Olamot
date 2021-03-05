@@ -59,6 +59,9 @@ class MyFrame(wx.Frame):
         self.read_questions()
         self.curq = 0
         self.innerq = 0
+        self.competitors = []
+        self.cur_competitor = -1
+        self.load_competitors()
 
         self.covered = [0 for _ in range(15)]
         self.framed = [0 for _ in range(15)]
@@ -93,12 +96,23 @@ class MyFrame(wx.Frame):
             title = title.replace('  ', ' ')
         w, h = g.GetMultiLineTextExtent(title)
         cur_font = 44
-        while w > 1200 or h > 214:
+        while w > 1000 or h > 214:
             cur_font -= 1
             g.SetFont(wx.Font(cur_font, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
-            w, h = g.GetMultiLineTextExtent(title);
-        g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1200, 214),
+            w, h = g.GetMultiLineTextExtent(title)
+        g.DrawLabel(title, empty_bmp, wx.Rect(50, 50, 1000, 214),
                     alignment=wx.ALIGN_CENTER_VERTICAL|wx.TEXT_ALIGNMENT_RIGHT, indexAccel=-1)
+        (comp, pronoun) = ('--', '--') if self.cur_competitor == -1 else self.competitors[self.cur_competitor]
+        print(comp)
+        competitor = comp + '\n (' + pronoun + ')'
+        w, h = g.GetMultiLineTextExtent(competitor)
+        cur_font = 44
+        while w > 236 or h > 214:
+            cur_font -= 1
+            g.SetFont(wx.Font(cur_font, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Narkisim'))
+            w, h = g.GetMultiLineTextExtent(competitor)
+        g.DrawLabel(competitor, empty_bmp, wx.Rect(1075, 50, 236, 214),
+                    alignment=wx.ALIGN_TOP|wx.ALIGN_CENTER_HORIZONTAL, indexAccel=-1)
         for i in range(5):
             for j in range(3):
                 cell = self.covered[5 * j + i]
@@ -168,6 +182,11 @@ class MyFrame(wx.Frame):
             self.framed = [0 for _ in range(15)]
             self.covered = [0 for _ in range(15)]
             self.Refresh()
+        if within_aabb(mx, my, 1075, 50, 236, 214):
+            self.cur_competitor += 1
+            if self.cur_competitor == len(self.competitors):
+                self.cur_competitor = -1
+            self.Refresh()
 
     def next_question(self):
         self.framed = [0 for _ in range(15)]
@@ -185,6 +204,12 @@ class MyFrame(wx.Frame):
         q = q[1:]
         shuffle(q)
         self.questions = [first] + q
+
+    def load_competitors(self):
+        with open('Keep it or Dump it Registration.csv', encoding='utf8') as f:
+            lines = f.read().split('\n')[1:]
+        self.competitors = [(l.split(',')[1][1:-1], l.split(',')[2][1:-1]) for l in lines]
+        shuffle(self.competitors)
 
 
 if __name__ == '__main__':
